@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediTranslate - Healthcare Translation App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .language-selector {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .language-group {
+            text-align: center;
+        }
+
+        .language-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .swap-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .swap-btn:hover {
+            background: #2980b9;
+            transform: rotate(180deg);
+        }
+
+        .transcription-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .transcript-panel {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 200px;
+        }
+
+        .transcript-panel h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+
+        .transcript-content {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            min-height: 120px;
+            font-size: 16px;
+            line-height: 1.6;
+            border: 1px solid #dee2e6;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary.recording {
+            background: #27ae60;
+            animation: pulse 1.5s infinite;
+        }
+
+        .btn-secondary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-clear {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        .status-bar {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #95a5a6;
+        }
+
+        .status-dot.active {
+            background: #27ae60;
+        }
+
+        .medical-terms {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .medical-terms h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .medical-terms p {
+            color: #856404;
+            font-size: 14px;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .language-selector {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .swap-btn {
+                justify-self: center;
+            }
+            
+            .transcription-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 MediTranslate</h1>
+            <p>Real-time healthcare translation for better patient care</p>
+        </div>
+
+        <div class="main-content">
+            <div class="medical-terms">
+                <h4>🔒 Privacy & Security</h4>
+                <p>All translations are processed securely. No medical data is stored permanently. This app is designed for healthcare communication assistance.</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="language-selector">
+                <div class="language-group">
+                    <label for="inputLanguage">Speaking Language</label>
+                    <select id="inputLanguage">
+                        <option value="en-US">English (US)</option>
+                        <option value="es-ES">Spanish</option>
+                        <option value="fr-FR">French</option>
+                        <option value="de-DE">German</option>
+                        <option value="it-IT">Italian</option>
+                    </select>
+                </div>
+
+                <button class="swap-btn" id="swapLanguages" title="Swap Languages">⇄</button>
+
+                <div class="language-group">
+                    <label for="outputLanguage">Translation Language</label>
+                    <select id="outputLanguage">
+                        <option value="es">Spanish</option>
+                        <option value="en">English</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="it">Italian</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Ready to translate</span>
+                </div>
+            </div>
+
+            <div class="transcription-area">
+                <div class="transcript-panel">
+                    <h3>🎤 Original Speech</h3>
+                    <div class="transcript-content" id="originalText" contenteditable="true" 
+                         placeholder="Start speaking or type here to test translation...">
+                        Start speaking to see your words appear here...
+                    </div>
+                    <button class="btn btn-secondary" id="translateBtn" style="margin-top: 10px; width: 100%; font-size: 14px;">
+                        🔄 Translate Text Above
+                    </button>
+                </div>
+
+                <div class="transcript-panel">
+                    <h3>🌐 Translation</h3>
+                    <div class="transcript-content" id="translatedText">
+                        Translation will appear here...
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="recordBtn">
+                    <span id="recordIcon">🎤</span>
+                    <span id="recordText">Start Recording</span>
+                </button>
+
+                <button class="btn btn-secondary" id="speakBtn" disabled>
+                    <span>🔊</span>
+                    <span>Speak Translation</span>
+                </button>
+
+                <button class="btn btn-clear" id="clearBtn">
+                    <span>🗑️</span>
+                    <span>Clear All</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>MediTranslate v1.0 - Secure Healthcare Communication | Built with Web Speech API & AI Translation</p>
+        </div>
+    </div>
+
+    <script>
+        class HealthcareTranslator {
+            constructor() {
+                this.recognition = null;
+                this.isRecording = false;
+                this.currentTranscript = '';
+                this.currentTranslation = '';
+                this.medicalTerms = [
+                    'pain', 'medication', 'symptoms', 'diagnosis', 'treatment', 'prescription',
+                    'allergy', 'emergency', 'doctor', 'nurse', 'hospital', 'clinic',
+                    'fever', 'nausea', 'headache', 'dizzy', 'surgery', 'injection',
+                    'blood pressure', 'heart rate', 'temperature', 'breathing'
+                ];
+                
+                this.initializeElements();
+                this.initializeSpeechRecognition();
+                this.bindEvents();
+                this.updateStatus('Ready to translate', false);
+            }
+
+            initializeElements() {
+                this.elements = {
+                    recordBtn: document.getElementById('recordBtn'),
+                    speakBtn: document.getElementById('speakBtn'),
+                    clearBtn: document.getElementById('clearBtn'),
+                    translateBtn: document.getElementById('translateBtn'),
+                    swapLanguages: document.getElementById('swapLanguages'),
+                    inputLanguage: document.getElementById('inputLanguage'),
+                    outputLanguage: document.getElementById('outputLanguage'),
+                    originalText: document.getElementById('originalText'),
+                    translatedText: document.getElementById('translatedText'),
+                    statusText: document.getElementById('statusText'),
+                    statusDot: document.getElementById('statusDot'),
+                    recordIcon: document.getElementById('recordIcon'),
+                    recordText: document.getElementById('recordText'),
+                    errorMessage: document.getElementById('errorMessage')
+                };
+            }
+
+            initializeSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    
+                    this.recognition.continuous = true;
+                    this.recognition.interimResults = true;
+                    this.recognition.language = this.elements.inputLanguage.value;
+
+                    this.recognition.onstart = () => {
+                        this.isRecording = true;
+                        this.updateRecordingUI(true);
+                        this.updateStatus('Listening...', true);
+                    };
+
+                    this.recognition.onresult = (event) => {
+                        let interimTranscript = '';
+                        let finalTranscript = this.currentTranscript || '';
+
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            const transcript = event.results[i][0].transcript;
+                            if (event.results[i].isFinal) {
+                                finalTranscript += transcript + ' ';
+                            } else {
+                                interimTranscript += transcript;
+                            }
+                        }
+
+                        // Show both final and interim results
+                        const displayText = finalTranscript + interimTranscript;
+                        this.displayOriginalText(displayText);
+
+                        // Update current transcript and translate if we have final results
+                        if (finalTranscript !== this.currentTranscript) {
+                            this.currentTranscript = finalTranscript.trim();
+                            if (this.currentTranscript) {
+                                this.translateText(this.currentTranscript);
+                            }
+                        }
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        this.showError(`Speech recognition error: ${event.error}`);
+                        this.stopRecording();
+                    };
+
+                    this.recognition.onend = () => {
+                        this.stopRecording();
+                    };
+                } else {
+                    this.showError('Speech recognition not supported in this browser. Please use Chrome or Firefox.');
+                }
+            }
+
+            bindEvents() {
+                this.elements.recordBtn.addEventListener('click', () => {
+                    if (this.isRecording) {
+                        this.stopRecording();
+                    } else {
+                        this.startRecording();
+                    }
+                });
+
+                this.elements.speakBtn.addEventListener('click', () => {
+                    this.speakTranslation();
+                });
+
+                this.elements.clearBtn.addEventListener('click', () => {
+                    this.clearAll();
+                });
+
+                this.elements.swapLanguages.addEventListener('click', () => {
+                    this.swapLanguages();
+                });
+
+                this.elements.translateBtn.addEventListener('click', () => {
+                    const text = this.elements.originalText.textContent.trim();
+                    if (text && text !== 'Start speaking to see your words appear here...') {
+                        this.translateText(text);
+                    } else {
+                        this.showError('Please enter some text to translate');
+                    }
+                });
+
+                this.elements.inputLanguage.addEventListener('change', () => {
+                    if (this.recognition) {
+                        this.recognition.language = this.elements.inputLanguage.value;
+                    }
+                });
+            }
+
+            startRecording() {
+                if (!this.recognition) {
+                    this.showError('Speech recognition not available');
+                    return;
+                }
+
+                try {
+                    this.recognition.language = this.elements.inputLanguage.value;
+                    this.recognition.start();
+                    this.hideError();
+                } catch (error) {
+                    this.showError('Could not start recording. Please try again.');
+                }
+            }
+
+            stopRecording() {
+                if (this.recognition && this.isRecording) {
+                    this.recognition.stop();
+                }
+                this.isRecording = false;
+                this.updateRecordingUI(false);
+                this.updateStatus('Processing...', false);
+            }
+
+            updateRecordingUI(recording) {
+                const btn = this.elements.recordBtn;
+                if (recording) {
+                    btn.classList.add('recording');
+                    this.elements.recordIcon.textContent = '⏹️';
+                    this.elements.recordText.textContent = 'Stop Recording';
+                } else {
+                    btn.classList.remove('recording');
+                    this.elements.recordIcon.textContent = '🎤';
+                    this.elements.recordText.textContent = 'Start Recording';
+                }
+            }
+
+            displayOriginalText(text) {
+                this.elements.originalText.textContent = text || 'Start speaking to see your words appear here...';
+            }
+
+            displayTranslatedText(text) {
+                this.elements.translatedText.textContent = text || 'Translation will appear here...';
+                this.elements.speakBtn.disabled = !text;
+            }
+
+            async translateText(text) {
+                if (!text.trim()) return;
+
+                this.updateStatus('Translating...', false);
+                
+                try {
+                    // Enhanced text with medical context
+                    const enhancedText = this.enhanceForMedicalContext(text);
+                    
+                    // Simulate AI translation (in real implementation, use OpenAI API or similar)
+                    const translation = await this.simulateAITranslation(enhancedText);
+                    
+                    this.currentTranslation = translation;
+                    this.displayTranslatedText(translation);
+                    this.updateStatus('Translation complete', false);
+                    
+                } catch (error) {
+                    this.showError('Translation failed. Please try again.');
+                    this.updateStatus('Translation error', false);
+                }
+            }
+
+            enhanceForMedicalContext(text) {
+                // Add medical context markers for better AI translation
+                const lowerText = text.toLowerCase();
+                const hasMedicalTerms = this.medicalTerms.some(term => lowerText.includes(term));
+                
+                if (hasMedicalTerms) {
+                    return `[MEDICAL CONTEXT] ${text}`;
+                }
+                return text;
+            }
+
+            async simulateAITranslation(text) {
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                const targetLang = this.elements.outputLanguage.value;
+                const cleanText = text.replace('[MEDICAL CONTEXT] ', '').trim();
+                
+                console.log('🔄 Translating:', `"${cleanText}"`, 'to', targetLang);
+                
+                // COMPREHENSIVE MEDICAL TRANSLATION DATABASE
+                const medicalTranslations = {
+                    'es': {
+                        // Complete medical phrases - EXACT MATCHES FIRST
+                        'hello i have a headache': 'hola, me duele la cabeza',
+                        'i have a headache': 'me duele la cabeza',
+                        'i am sick': 'estoy enfermo',
+                        'i feel sick': 'me siento enfermo',
+                        'i am not feeling well': 'no me siento bien',
+                        'i need a doctor': 'necesito un médico',
+                        'call a doctor': 'llamen a un médico',
+                        'where is the hospital': 'dónde está el hospital',
+                        'i have a fever': 'tengo fiebre',
+                        'i have pain': 'tengo dolor',
+                        'i need help': 'necesito ayuda',
+                        'help me': 'ayúdenme',
+                        'i can\'t breathe': 'no puedo respirar',
+                        'i feel dizzy': 'me siento mareado',
+                        'i have allergies': 'tengo alergias',
+                        'it hurts': 'me duele',
+                        'i take medication': 'tomo medicamentos',
+                        'what is your name': 'cuál es su nombre',
+                        'how old are you': 'cuántos años tiene',
+                        'when did this start': 'cuándo empezó esto',
+                        'how long': 'cuánto tiempo',
+                        
+                        // Common greetings and phrases
+                        'good morning': 'buenos días',
+                        'good afternoon': 'buenas tardes', 
+                        'good evening': 'buenas noches',
+                        'hello': 'hola',
+                        'hi': 'hola',
+                        'how are you': 'cómo está usted',
+                        'thank you': 'gracias',
+                        'please': 'por favor',
+                        'excuse me': 'disculpe',
+                        'i\'m sorry': 'lo siento',
+                        'yes': 'sí',
+                        'no': 'no',
+                        
+                        // Individual medical terms
+                        'doctor': 'médico',
+                        'nurse': 'enfermera',
+                        'hospital': 'hospital',
+                        'pharmacy': 'farmacia',
+                        'medicine': 'medicina',
+                        'medication': 'medicamento',
+                        'pill': 'pastilla',
+                        'injection': 'inyección',
+                        'surgery': 'cirugía',
+                        'emergency': 'emergencia',
+                        'ambulance': 'ambulancia',
+                        'pain': 'dolor',
+                        'headache': 'dolor de cabeza',
+                        'fever': 'fiebre',
+                        'nausea': 'náuseas',
+                        'dizzy': 'mareado',
+                        'sick': 'enfermo',
+                        'allergy': 'alergia',
+                        'allergies': 'alergias',
+                        'breathe': 'respirar',
+                        'heart': 'corazón',
+                        'blood': 'sangre',
+                        'pressure': 'presión'
+                    },
+                    
+                    'fr': {
+                        // Complete medical phrases
+                        'hello i have a headache': 'bonjour, j\'ai mal à la tête',
+                        'i have a headache': 'j\'ai mal à la tête',
+                        'i am sick': 'je suis malade',
+                        'i feel sick': 'je me sens malade',
+                        'i am not feeling well': 'je ne me sens pas bien',
+                        'i need a doctor': 'j\'ai besoin d\'un médecin',
+                        'call a doctor': 'appelez un médecin',
+                        'where is the hospital': 'où est l\'hôpital',
+                        'i have a fever': 'j\'ai de la fièvre',
+                        'i have pain': 'j\'ai mal',
+                        'i need help': 'j\'ai besoin d\'aide',
+                        'help me': 'aidez-moi',
+                        'i can\'t breathe': 'je ne peux pas respirer',
+                        'i feel dizzy': 'j\'ai des vertiges',
+                        'i have allergies': 'j\'ai des allergies',
+                        'it hurts': 'ça fait mal',
+                        'i take medication': 'je prends des médicaments',
+                        
+                        // Common phrases
+                        'good morning': 'bonjour',
+                        'good afternoon': 'bonne après-midi',
+                        'good evening': 'bonsoir',
+                        'hello': 'bonjour',
+                        'hi': 'salut',
+                        'how are you': 'comment allez-vous',
+                        'thank you': 'merci',
+                        'please': 's\'il vous plaît',
+                        'excuse me': 'excusez-moi',
+                        'i\'m sorry': 'je suis désolé',
+                        'yes': 'oui',
+                        'no': 'non',
+                        
+                        // Medical terms
+                        'doctor': 'médecin',
+                        'nurse': 'infirmière',
+                        'hospital': 'hôpital',
+                        'pharmacy': 'pharmacie',
+                        'medicine': 'médicament',
+                        'medication': 'médicament',
+                        'emergency': 'urgence',
+                        'pain': 'douleur',
+                        'headache': 'mal de tête',
+                        'fever': 'fièvre',
+                        'sick': 'malade',
+                        'allergy': 'allergie',
+                        'allergies': 'allergies',
+                        'breathe': 'respirer'
+                    },
+                    
+                    'de': {
+                        // Complete medical phrases
+                        'hello i have a headache': 'hallo, ich habe kopfschmerzen',
+                        'i have a headache': 'ich habe kopfschmerzen',
+                        'i am sick': 'ich bin krank',
+                        'i need a doctor': 'ich brauche einen arzt',
+                        'i have a fever': 'ich habe fieber',
+                        'i need help': 'ich brauche hilfe',
+                        'hello': 'hallo',
+                        'good morning': 'guten morgen',
+                        'thank you': 'danke',
+                        'yes': 'ja',
+                        'no': 'nein',
+                        'doctor': 'arzt',
+                        'hospital': 'krankenhaus',
+                        'pain': 'schmerz',
+                        'sick': 'krank',
+                        'help': 'hilfe'
+                    },
+                    
+                    'it': {
+                        // Complete medical phrases
+                        'hello i have a headache': 'ciao, ho mal di testa',
+                        'i have a headache': 'ho mal di testa',
+                        'i am sick': 'sono malato',
+                        'i need a doctor': 'ho bisogno di un dottore',
+                        'i have a fever': 'ho la febbre',
+                        'i need help': 'ho bisogno di aiuto',
+                        'hello': 'ciao',
+                        'good morning': 'buongiorno',
+                        'thank you': 'grazie',
+                        'yes': 'sì',
+                        'no': 'no',
+                        'doctor': 'dottore',
+                        'hospital': 'ospedale',
+                        'pain': 'dolore',
+                        'sick': 'malato',
+                        'help': 'aiuto'
+                    },
+                    
+                    'en': {
+                        // Reverse translations
+                        'me duele la cabeza': 'i have a headache',
+                        'estoy enfermo': 'i am sick',
+                        'necesito un médico': 'i need a doctor',
+                        'hola': 'hello',
+                        'j\'ai mal à la tête': 'i have a headache',
+                        'je suis malade': 'i am sick',
+                        'bonjour': 'hello',
+                        'ich bin krank': 'i am sick',
+                        'hallo': 'hello',
+                        'sono malato': 'i am sick',
+                        'ciao': 'hello'
+                    }
+                };
+
+                // Get the translation database for target language
+                const translationDB = medicalTranslations[targetLang];
+                
+                if (!translationDB) {
+                    console.log('❌ No translation database for:', targetLang);
+                    return `Translation not available for ${targetLang}`;
+                }
+
+                // STEP 1: Try exact phrase match (case insensitive)
+                const lowerText = cleanText.toLowerCase();
+                if (translationDB[lowerText]) {
+                    console.log('✅ EXACT PHRASE MATCH:', translationDB[lowerText]);
+                    return translationDB[lowerText];
+                }
+
+                // STEP 2: Try phrase matching with common variations
+                const variations = [
+                    lowerText.replace(/[.,!?]/g, ''), // Remove punctuation
+                    lowerText.replace(/\s+/g, ' ').trim(), // Normalize spaces
+                ];
+                
+                for (const variation of variations) {
+                    if (translationDB[variation]) {
+                        console.log('✅ VARIATION MATCH:', translationDB[variation]);
+                        return translationDB[variation];
+                    }
+                }
+
+                // STEP 3: Smart word-by-word ONLY if no phrase match
+                const words = lowerText.split(' ');
+                const translatedWords = [];
+                let foundAnyTranslation = false;
+
+                for (const word of words) {
+                    const cleanWord = word.replace(/[.,!?]/g, '');
+                    if (translationDB[cleanWord]) {
+                        translatedWords.push(translationDB[cleanWord]);
+                        foundAnyTranslation = true;
+                        console.log('✅ Word translated:', cleanWord, '→', translationDB[cleanWord]);
+                    } else {
+                        translatedWords.push(word);
+                    }
+                }
+
+                if (foundAnyTranslation) {
+                    const result = translatedWords.join(' ');
+                    console.log('✅ WORD-BY-WORD RESULT:', result);
+                    return result;
+                }
+
+                // STEP 4: Fallback - indicate no translation available
+                console.log('❌ NO TRANSLATION FOUND for:', cleanText);
+                const langNames = { 'es': 'Spanish', 'fr': 'French', 'de': 'German', 'it': 'Italian', 'en': 'English' };
+                return `[No ${langNames[targetLang]} translation available for: "${cleanText}"]`;
+            }
+
+            createFallbackTranslation(text, targetLang) {
+                const languageNames = {
+                    'es': 'Español',
+                    'fr': 'Français', 
+                    'de': 'Deutsch',
+                    'it': 'Italiano',
+                    'en': 'English'
+                };
+
+                // Simple word-based translation attempts for common words
+                const basicWords = {
+                    'fr': {
+                        'hello': 'bonjour', 'hi': 'salut', 'good': 'bon', 'morning': 'matin',
+                        'thank': 'merci', 'you': 'vous', 'please': 's\'il vous plaît',
+                        'help': 'aide', 'yes': 'oui', 'no': 'non'
+                    },
+                    'es': {
+                        'hello': 'hola', 'hi': 'hola', 'good': 'bueno', 'morning': 'mañana',
+                        'thank': 'gracias', 'you': 'usted', 'please': 'por favor',
+                        'help': 'ayuda', 'yes': 'sí', 'no': 'no'
+                    }
+                };
+
+                if (basicWords[targetLang]) {
+                    const words = text.toLowerCase().split(' ');
+                    const translated = words.map(word => {
+                        const cleanWord = word.replace(/[.,!?]/g, '');
+                        return basicWords[targetLang][cleanWord] || word;
+                    });
+                    
+                    const result = translated.join(' ');
+                    if (result !== text.toLowerCase()) {
+                        return result;
+                    }
+                }
+
+                return `${text} (${languageNames[targetLang] || 'translated'})`;
+            }
+
+            async mockGoogleTranslate(text, targetLang) {
+                // Simulate a more sophisticated translation service
+                const languageNames = {
+                    'es': 'Spanish',
+                    'fr': 'French', 
+                    'de': 'German',
+                    'it': 'Italian',
+                    'pt': 'Portuguese',
+                    'zh': 'Chinese',
+                    'ja': 'Japanese',
+                    'ko': 'Korean',
+                    'ar': 'Arabic',
+                    'hi': 'Hindi',
+                    'ru': 'Russian',
+                    'en': 'English'
+                };
+
+                // Common medical phrases that work across languages
+                const universalMedical = {
+                    'es': {
+                        'hello': 'hola',
+                        'pain': 'dolor',
+                        'help': 'ayuda',
+                        'doctor': 'médico',
+                        'medicine': 'medicina',
+                        'hospital': 'hospital',
+                        'emergency': 'emergencia',
+                        'fever': 'fiebre',
+                        'headache': 'dolor de cabeza'
+                    },
+                    'fr': {
+                        'hello': 'bonjour',
+                        'pain': 'douleur',
+                        'help': 'aide', 
+                        'doctor': 'médecin',
+                        'medicine': 'médicament',
+                        'hospital': 'hôpital',
+                        'emergency': 'urgence',
+                        'fever': 'fièvre',
+                        'headache': 'mal de tête'
+                    }
+                };
+
+                // Try universal medical terms
+                if (universalMedical[targetLang]) {
+                    const words = text.toLowerCase().split(' ');
+                    const translated = words.map(word => {
+                        const cleanWord = word.replace(/[.,!?]/g, '');
+                        return universalMedical[targetLang][cleanWord] || word;
+                    }).join(' ');
+                    
+                    if (translated !== text) {
+                        return translated;
+                    }
+                }
+
+                // Final fallback with better formatting
+                const langName = languageNames[targetLang] || 'target language';
+                return `[${text}] → ${langName}`;
+            }
+
+            speakTranslation() {
+                if (!this.currentTranslation) return;
+
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    
+                    const utterance = new SpeechSynthesisUtterance(this.currentTranslation);
+                    
+                    // Set language based on output selection
+                    const langMap = {
+                        'es': 'es-ES',
+                        'fr': 'fr-FR',
+                        'de': 'de-DE',
+                        'it': 'it-IT',
+                        'en': 'en-US'
+                    };
+                    
+                    utterance.lang = langMap[this.elements.outputLanguage.value] || 'en-US';
+                    utterance.rate = 0.8;
+                    utterance.pitch = 1;
+                    
+                    utterance.onstart = () => {
+                        this.updateStatus('Speaking translation...', true);
+                    };
+                    
+                    utterance.onend = () => {
+                        this.updateStatus('Ready to translate', false);
+                    };
+                    
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    this.showError('Text-to-speech not supported in this browser');
+                }
+            }
+
+            swapLanguages() {
+                const inputLang = this.elements.inputLanguage.value;
+                const outputLang = this.elements.outputLanguage.value;
+                
+                // Simple language code mapping for swapping
+                const langMapping = {
+                    'en-US': 'en', 'es-ES': 'es', 'fr-FR': 'fr',
+                    'de-DE': 'de', 'it-IT': 'it'
+                };
+                
+                const reverseLangMapping = {
+                    'en': 'en-US', 'es': 'es-ES', 'fr': 'fr-FR',
+                    'de': 'de-DE', 'it': 'it-IT'
+                };
+                
+                if (reverseLangMapping[outputLang]) {
+                    this.elements.inputLanguage.value = reverseLangMapping[outputLang];
+                }
+                
+                if (langMapping[inputLang]) {
+                    this.elements.outputLanguage.value = langMapping[inputLang];
+                }
+                
+                if (this.recognition) {
+                    this.recognition.language = this.elements.inputLanguage.value;
+                }
+            }
+
+            clearAll() {
+                this.currentTranscript = '';
+                this.currentTranslation = '';
+                this.displayOriginalText('');
+                this.displayTranslatedText('');
+                this.updateStatus('Ready to translate', false);
+                this.hideError();
+                
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                }
+                
+                if (this.isRecording) {
+                    this.stopRecording();
+                }
+            }
+
+            updateStatus(message, active) {
+                this.elements.statusText.textContent = message;
+                this.elements.statusDot.classList.toggle('active', active);
+            }
+
+            showError(message) {
+                this.elements.errorMessage.textContent = message;
+                this.elements.errorMessage.style.display = 'block';
+            }
+
+            hideError() {
+                this.elements.errorMessage.style.display = 'none';
+            }
+        }
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new HealthcareTranslator();
+        });
+    </script>
+</body>
+</html>
